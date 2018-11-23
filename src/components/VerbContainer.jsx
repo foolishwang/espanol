@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import ConjugationForm from './ConjugationForm';
-import { runInThisContext } from 'vm';
+import TenseHeader from './TenseHeader';
 
 
 export default class VerbContainer extends Component {
@@ -10,12 +10,26 @@ export default class VerbContainer extends Component {
 
         this.state = {
             verbs: [],
-            nextVerbs: [],
             idx: 0,
             tenses: {
-                'present': true,
-                'imperative': true,
-                'preterit': true
+                "Presente": true, 
+                "Presente - Imperativo": true, 
+                "Presente perfecto": false, 
+                "Pretérito": true, 
+                "Futuro": true,
+                "Futuro perfecto": false, 
+                "Pluscuamperfecto": false, 
+                "Imperfecto": false, 
+                "Pretérito anterior": false, 
+                "Condicional": false,
+                "Condicional perfecto": false, 
+                // subjunctive
+                "Presente - Subjuntivo": false, 
+                "Presente perfecto - Subjuntivo": false, 
+                "Futuro - Subjuntivo": false,
+                "Futuro perfecto - Subjuntivo": false,
+                "Pluscuamperfecto - Subjuntivo": false, 
+                "Imperfecto - Subjuntivo": false, 
             },
             hasLoaded: false
         }
@@ -26,66 +40,10 @@ export default class VerbContainer extends Component {
     }
 
     loadVerbs() {
-        // TODO
-        this.setState({
-            hasLoaded: true,
-            verbs: [
-                {
-                    infinitive: 'abrir',
-                    tenses: [
-                        {
-                            englishName: 'present',
-                            conjugation: {
-                                'yo': 'abro',
-                                'tu': 'abras',
-                                'ud': 'abra',
-                                'nos': 'abramos',
-                                'vos': 'abrais',
-                                'uds': 'abran',
-                            }
-                        },
-                        {
-                            englishName: 'present',
-                            conjugation: {
-                                'yo': 'abro',
-                                'tu': 'abras',
-                                'ud': 'abra',
-                                'nos': 'abramos',
-                                'vos': 'abrais',
-                                'uds': 'abran',
-                            }
-                        },
-                        {
-                            englishName: 'present',
-                            conjugation: {
-                                'yo': 'abro',
-                                'tu': 'abras',
-                                'ud': 'abra',
-                                'nos': 'abramos',
-                                'vos': 'abrais',
-                                'uds': 'abran',
-                            }
-                        }
-                    ]
-                },
-                {
-                    infinitive: 'comer',
-                    tenses: [
-                        {},
-                        {},
-                        {}
-                    ]
-                },
-                {
-                    infinitive: "tomar",
-                    tenses: [
-                        {},
-                        {},
-                        {}
-                    ]
-                }
-            ]
-        });
+        fetch(`http://localhost:8000/verbs`).then(resp =>
+            resp.json().then(rResp =>
+                this.setState({ verbs: rResp, hasLoaded: true }))
+        );
     }
 
     componentDidMount() {
@@ -93,18 +51,15 @@ export default class VerbContainer extends Component {
     }
 
     nextVerb() {
-        this.setState((prevState) => {
-            const newIdx = prevState.idx + 1 > 2
-                ? 0
-                : prevState.idx + 1;
-            return {
-                idx: newIdx
-            };
-        });
+        if (this.state.idx >= this.state.verbs.length - 1) {
+            this.setState({ idx: 0, hasLoaded: false, verbs: [] });
+            this.loadVerbs()
+        } else {
+            this.setState({ idx: this.state.idx + 1 });
+        }
     }
 
-    toggleTense(e) {
-        const name = e.target.getAttribute('name');
+    toggleTense(name) {
         this.setState(prevState => (
            {
                 tenses: {
@@ -118,53 +73,41 @@ export default class VerbContainer extends Component {
     render() {
         const { hasLoaded, tenses, verbs, idx } = this.state;
         const verb = verbs[idx];
-        const activeTenses = [];
-        Object.keys(tenses).forEach(tk => {
-            if (tenses[tk]) {
-                activeTenses.push(tk);
-            }
-        })
 
         return (
-            <>
-            {
-                !hasLoaded ? 
-                <h1>LOADING VERBS!</h1> :
-                <div>
-                    <div>
-                        <p 
-                            name='present'
-                            style={{
-                                background: tenses['present'] ? 'lightblue' : 'white'
-                            }} 
-                            onClick={ this._toggleTense }>Present</p>
-                        <p 
-                            name='imperative'
-                            style={{
-                                background: tenses['imperative'] ? 'lightblue' : 'white'
-                            }} 
-                            onClick={ this._toggleTense }>Imperative</p>
-                        <p 
-                            name='preterit'
-                            style={{
-                                background: tenses['preterit'] ? 'lightblue' : 'white'
-                            }} 
-                            onClick={ this._toggleTense }>Preterit</p>
-                    </div>
-                    <h1>{ verb.infinitive }</h1>
-                    <p onClick={ this._nextVerb }>next >></p>
-                    {
-                        activeTenses.map(tense => (
-                            <ConjugationForm 
-                                key={ tense }
-                                tense={ tense } 
-                                verb={ verbs[idx].tenses.find(v => v.englishName == tense) } 
-                            />
-                        ))
-                    }
+            <div style={{ maxWidth: '1000px' }}>
+                <div style={{ display: 'flex' }}>
+                    <TenseHeader activeTenses={ tenses } toggleTense={ this._toggleTense } />
                 </div>
-            }
-            </>
+                { 
+                    !hasLoaded ? 
+                    <h1>Loading Some Verbs</h1> : 
+                    <div>
+                        <h1>{ verb.infinitive }</h1>
+                        <p onClick={ this._nextVerb }>next >></p>
+                        <div style={{ display: 'flex', width: '100%', maxWidth: '1000px' }}>
+                        {
+                            Object.keys(tenses).filter(t => tenses[t]).map(tense => (
+                                <div 
+                                    key={tense} 
+                                    style={{ 
+                                        margin: '20px',
+                                        border: '1px solid #aaa',
+                                        borderRadius: '8px',
+                                        padding: '15px'
+                                    }}
+                                >
+                                    <h3>{tense}</h3>
+                                    <ConjugationForm 
+                                        conjugations={ verbs[idx].conjugations.find(v => v.tense.toLowerCase() == tense.toLowerCase()) || {} } 
+                                    />
+                                </div>
+                            ))
+                        }
+                        </div>
+                    </div>
+                }
+            </div>
         );
     }
 }

@@ -3,6 +3,11 @@ import React, { Component } from 'react';
 
 export default class AppHeader extends Component {
     render() {
-        return <h1>HEADER!</h1>
+        return (
+            <div>
+                <h1>Spanish Verb Conjugations</h1>
+                <p>Choose tense / mood combos below</p>
+            </div>
+        )
     }
 }

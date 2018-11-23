@@ -1,105 +1,81 @@
 import React, { Component } from 'react';
+import { Form, Field } from 'react-final-form'
+
+/**
+ * "form1s"
+"form2s"
+"form3s"
+"form1p"
+"form2p"
+"form3p"
+ */
+const personToLabel = {
+    form1s: 'yo',
+    form2s: 'tu',
+    form3s: 'Ud',
+    form1p: 'nos.',
+    form2p: 'vos.',
+    form3p: 'Uds.' 
+};
 
 
-export default class ConjugationForm extends Component {
-    constructor(props) {
-        super(props);
+const handleSubmit = values => true;
 
-        this.state = {
-            yo: '',
-            yoCorrect: false,
-            tu: '',
-            tuCorrect: false,
-            ud: '',
-            udsCorrect: false,
-            nos: '',
-            nosCorrect: false,
-            vos: '',
-            vosCorrect: false,
-            uds: '',
-            udsCorrect: false,
-            correctTimeout: null
-        };
 
-        this._inputChange = this.inputChange.bind(this);
-        this._correct = this.correct.bind(this);
-    }
+const checkAnswer = (conjugations, values) => {
+    const results = {};
+    Object.keys(values).forEach(person => (
+        results[person] = conjugations[person].toLowerCase() !== values[person].toLowerCase()
 
-    correct(person) {
-        const { verb } = this.props;
-        this.setState(prevState => (
-            {
-                [`${person}Correct`]: prevState[person] == verb.conjugation[person]
-            }
-        ));
-    }
+    ))
 
-    inputChange(e) {
-        const pers = e.target.getAttribute('name');
-        clearTimeout(this.state.correctTimeout);
-        const value = e.target.value;
-        this.setState(prevState => (
-            {
-                [pers]: value,
-                correctTimeout: setTimeout(() => this._correct(pers), 500)
-            }
-        ));
-    }
+    return results;
+};
 
-    render() {
-        const { tense, verb } = this.props;
-        const {
-            yo,
-            yoCorrect,
-            tu,
-            tuCorrect,
-            ud,
-            udCorrect,
-            nos,
-            nosCorrect,
-            vos,
-            vosCorrect,
-            uds,
-            udsCorrect
-        } = this.state;
-        return (
-            <div>
-                <div>{ tense }</div>
-                <div>
-                    <div>
-                        <label>yo</label>
-                        <input 
-                            name='yo'
-                            style={{
-                                border: '1px solid',
-                                borderColor: yoCorrect ? 'green' : 'gray'
-                            }}
-                            onChange={ this._inputChange }
-                            value={ yo }
-                        />
-                    </div>
-                    <div>
-                        <label>tu</label>
-                        <input name='tu' />
-                    </div>
-                    <div>
-                        <label>el/ellas/Ud</label>
-                        <input name='ud' />
-                    </div>
-                    <div>
-                        <label>nos.</label>
-                        <input name='nos' />
-                    </div>
-                    <div>
-                        <label>vos</label>
-                        <input name='vos' />
-                    </div>
-                    <div>
-                        <label>Uds.</label>
-                        <input name='uds' />
-                    </div>
-                </div>
-            </div>
-        )
-    }
-}
+
+const ConjugationForm = ({ conjugations, verb }) => (
+    <Form
+        onSubmit={(values) => checkAnswer(conjugations, values)}
+        validate={values => checkAnswer(conjugations, values)}
+        validateOnBlur={false}
+        render={
+            ({ handleSubmit, form, value }) =>(
+                <form onSubmit={handleSubmit}>
+                    {
+                        Object.keys(conjugations).map(person => (
+                            personToLabel[person] &&
+                            <div 
+                                key={person} 
+                                style={{ 
+                                    display: 'flex',
+                                    marginBottom: '7px',
+                                    width: '100%'
+                                    }}
+                                >
+                                <label 
+                                    style={{ 
+                                        marginRight: '5px',
+                                        width: '30px'
+                                    }}
+                                >{personToLabel[person]}</label>
+                                <Field name={person}>
+                                    {({ input, meta }) => (
+                                        <div style={{ display: 'flex' }}>
+                                            <input {...input} type="text" />
+                                            {meta.error && meta.touched && <p>{conjugations[person]}</p>}
+                                        </div>
+                                    )}
+                                </Field>
+                            </div>
+                        ))
+                    }
+                    <p>{JSON.stringify(value)}</p>
+                    <button type="submit">Check</button>
+                </form>
+            )
+        }
+    >
+    </Form>
+)
+
+export default ConjugationForm;
