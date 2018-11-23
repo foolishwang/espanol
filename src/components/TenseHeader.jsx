@@ -33,9 +33,9 @@ export default ({ activeTenses, toggleTense }) => (
                                 style={{ 
                                     textAlign: 'center',
                                     fontSize:  '12px',
-                                    margin: '0 5px',
                                     borderRadius: '7px',
-                                    background: activeTenses[it] ? 'lightblue' :  'white',
+                                    padding: '5px',
+                                    background: activeTenses[it] ? '#4cd0ba' :  'white',
                                     color: activeTenses[it] ? 'white' : 'black'
                                 }}
                             >{ it }</td>
@@ -57,9 +57,9 @@ export default ({ activeTenses, toggleTense }) => (
                                     style={{
                                         textAlign: 'center',
                                         fontSize:  '12px',
-                                        margin: '0 5px',
+                                        padding: '5px',
                                         borderRadius: '7px',
-                                        background: activeTenses[st] ? 'lightblue' :  'white',
+                                        background: activeTenses[st] ? '#4cd0ba' :  'white',
                                         color: activeTenses[st] ? 'white' : 'black'
                                     }}
                                 >{ st }</td>

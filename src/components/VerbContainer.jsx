@@ -70,12 +70,16 @@ export default class VerbContainer extends Component {
         ));
     }
 
+    submitVerbs(values) {
+        this.setState({ formValuess: values });
+    }
+
     render() {
-        const { hasLoaded, tenses, verbs, idx } = this.state;
+        const { hasLoaded, tenses, verbs, idx, formValues } = this.state;
         const verb = verbs[idx];
 
         return (
-            <div style={{ maxWidth: '1000px' }}>
+            <div style={{ width: '100%' }}>
                 <div style={{ display: 'flex' }}>
                     <TenseHeader activeTenses={ tenses } toggleTense={ this._toggleTense } />
                 </div>
@@ -83,22 +87,34 @@ export default class VerbContainer extends Component {
                     !hasLoaded ? 
                     <h1>Loading Some Verbs</h1> : 
                     <div>
-                        <h1>{ verb.infinitive }</h1>
-                        <p onClick={ this._nextVerb }>next >></p>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <h1>{ verb.infinitive }</h1>
+                            <p 
+                                style={{ 
+                                    marginLeft: '20px',
+                                    border: '1px solid gray',
+                                    borderRadius: '8px',
+                                    padding: '7px'
+                                }}
+                                onClick={ this._nextVerb }>next >></p>
+                        </div>
                         <div style={{ display: 'flex', width: '100%', maxWidth: '1000px' }}>
                         {
                             Object.keys(tenses).filter(t => tenses[t]).map(tense => (
                                 <div 
-                                    key={tense} 
+                                    key={`${tense}${verbs[idx]}`} 
                                     style={{ 
                                         margin: '20px',
+                                        marginTop: '0px',
                                         border: '1px solid #aaa',
                                         borderRadius: '8px',
                                         padding: '15px'
                                     }}
                                 >
-                                    <h3>{tense}</h3>
-                                    <ConjugationForm 
+                                    <div style={{ fontSize: '18px', fontWeight: '600',  marginBottom: '7px' }}>{tense}</div>
+                                    <ConjugationForm
+                                        verb={ verbs[idx] }
+                                        tense={ tense }
                                         conjugations={ verbs[idx].conjugations.find(v => v.tense.toLowerCase() == tense.toLowerCase()) || {} } 
                                     />
                                 </div>

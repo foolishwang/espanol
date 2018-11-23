@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Form, Field } from 'react-final-form'
+import { __metadata } from 'tslib';
+import { redBright } from 'ansi-colors';
 
 /**
  * "form1s"
@@ -19,37 +21,33 @@ const personToLabel = {
 };
 
 
-const handleSubmit = values => true;
-
-
-const checkAnswer = (conjugations, values) => {
+const checkAnswer = (conjugations, values, form, cb) => {
     const results = {};
     Object.keys(values).forEach(person => (
-        results[person] = conjugations[person].toLowerCase() !== values[person].toLowerCase()
+        results[person] = values[person] && conjugations[person].toLowerCase() !== values[person].toLowerCase()
 
     ))
-
-    return results;
+    cb(results);
 };
 
 
-const ConjugationForm = ({ conjugations, verb }) => (
+const ConjugationForm = ({ conjugations, verb, tense }) => (
     <Form
-        onSubmit={(values) => checkAnswer(conjugations, values)}
-        validate={values => checkAnswer(conjugations, values)}
-        validateOnBlur={false}
+        key={ `${verb.infinitive}${tense}` }
+        onSubmit={(values, form, cb) => checkAnswer(conjugations, values, form, cb)}
         render={
-            ({ handleSubmit, form, value }) =>(
-                <form onSubmit={handleSubmit}>
+            ({ handleSubmit, values }) =>(
+                <form onSubmit={handleSubmit} autoComplete={ 'off' }>
                     {
                         Object.keys(conjugations).map(person => (
                             personToLabel[person] &&
                             <div 
                                 key={person} 
                                 style={{ 
+                                    alignItems: 'center',
                                     display: 'flex',
-                                    marginBottom: '7px',
-                                    width: '100%'
+                                    width: '100%',
+                                    visibility: tense.includes('Imperativo') && ['form1s', 'form1p'].includes(person) ? 'hidden' : 'visible'
                                     }}
                                 >
                                 <label 
@@ -59,18 +57,43 @@ const ConjugationForm = ({ conjugations, verb }) => (
                                     }}
                                 >{personToLabel[person]}</label>
                                 <Field name={person}>
-                                    {({ input, meta }) => (
-                                        <div style={{ display: 'flex' }}>
-                                            <input {...input} type="text" />
-                                            {meta.error && meta.touched && <p>{conjugations[person]}</p>}
-                                        </div>
-                                    )}
+                                    {({ input, meta }) => {
+                                        const hasSubmitted = meta.submitFailed || meta.submitSucceeded;
+                                        const wasAttempted = hasSubmitted && input.value && meta.visited && meta.touched;
+                                        const shouldShow = meta.dirtySinceLastSubmit ? false : wasAttempted;
+                                        const showError = meta.submitError && wasAttempted;
+                                        return (
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                padding: '4px'
+                                                }}
+                                            >
+                                                <input {...input} type="text" style={{ height: '20px' }} />
+                                                <p style={{
+                                                    height: '20px',
+                                                    visibility: shouldShow ? 'visible' : 'hidden',
+                                                    color: showError ? 'red' : 'green',
+                                                    margin: '0px',
+                                                    marginLeft: '7px'
+                                                }}>{conjugations[person]}</p>
+                                            </div>
+                                        );  
+                                    }}
                                 </Field>
                             </div>
                         ))
                     }
-                    <p>{JSON.stringify(value)}</p>
-                    <button type="submit">Check</button>
+                    <button 
+                        type="submit"
+                        style={{
+                            width: '100%',
+                            border: '1px solid gray',
+                            borderRadius: '8px',
+                            fontSize: '16px',
+                            padding: '10px'
+                        }}
+                    >Check</button>
                 </form>
             )
         }
