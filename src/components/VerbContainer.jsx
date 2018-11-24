@@ -89,6 +89,11 @@ export default class VerbContainer extends Component {
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <h1>{ verb.infinitive }</h1>
+                            <p
+                                style={{ 
+                                    marginLeft: '20px',
+                                }}
+                            >({ verb.infinitiveEnglish })</p>
                             <p 
                                 style={{ 
                                     marginLeft: '20px',

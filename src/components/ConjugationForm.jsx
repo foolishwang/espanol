@@ -37,7 +37,7 @@ const ConjugationForm = ({ conjugations, verb, tense }) => (
         onSubmit={(values, form, cb) => checkAnswer(conjugations, values, form, cb)}
         render={
             ({ handleSubmit, values }) =>(
-                <form onSubmit={handleSubmit} autoComplete={ 'off' }>
+                <form id="search___" onSubmit={handleSubmit} autoComplete={ 'off' }>
                     {
                         Object.keys(conjugations).map(person => (
                             personToLabel[person] &&
@@ -47,7 +47,9 @@ const ConjugationForm = ({ conjugations, verb, tense }) => (
                                     alignItems: 'center',
                                     display: 'flex',
                                     width: '100%',
-                                    visibility: tense.includes('Imperativo') && ['form1s', 'form1p'].includes(person) ? 'hidden' : 'visible'
+                                    visibility: tense.includes('Imperativo') && ['form1s', 'form1p'].includes(person) || !conjugations[person]
+                                        ? 'hidden' 
+                                        : 'visible'
                                     }}
                                 >
                                 <label 
